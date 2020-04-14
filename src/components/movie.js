@@ -14,12 +14,46 @@ import {
 } from 'react-bootstrap'
 import { Image } from 'react-bootstrap'
 import { withRouter } from "react-router-dom";
-import {fetchMovie} from "../actions/movieActions";
+import {fetchMovie, postReview} from "../actions/movieActions";
 import PanelBody from "react-bootstrap/lib/PanelBody";
+import {submitLogin} from "../actions/authActions";
 
 //support routing by creating a new component
 
 class Movie extends Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            review: {
+                name: localStorage.getItem('username'),
+                review_quote: '',
+                rating: 0,
+                movie_ID: this.props.selectedMovie.movie_ID,
+            }
+        };
+        this.handleUpdate = this.handleUpdate.bind(this);
+        this.postRev = this.postRev.bind(this);
+    }
+
+    handleUpdate(event){
+        let updateDetails = Object.assign({}, this.state.review);
+        if(event.target.id === "rating"){
+            updateDetails[event.target.id] = parseInt(event.target.value);
+        }
+        else {
+            updateDetails[event.target.id] = event.target.value;
+        }
+        this.setState({
+            review: updateDetails
+        });
+        console.log(this.state.review);
+    }
+
+    postRev(){
+        const {dispatch} = this.props;
+        dispatch(postReview(this.state.review));
+    }
 
     componentDidMount() {
         const {dispatch} = this.props;
@@ -50,15 +84,27 @@ class Movie extends Component {
         const ReviewField = ({reviews}) =>{
             return(
                 <Form horizontal>
-                    <FormGroup controlId="reviewToPost">
+                    <FormGroup controlId="review_quote">
                         <Col componentClass={ControlLabel} sm={2}>
                             Leave a review
                         </Col>
                         <Col sm={10}>
-                            <FormControl type="email" placeholder="Leave a review" />
-                            <FormControl type="email" placeholder="# out of 5" />
-                            <FormControl as="select"> </FormControl>
-                            <Button > Submit Review </Button>
+                            <FormControl autoFocus onChange={this.handleUpdate} value={this.state.review.review_quote} type="text" placeholder="Leave a review" />
+                        </Col>
+                    </FormGroup>
+                    <FormGroup controlId="rating">
+                        <Col componentClass={ControlLabel} sm={2}>
+                            Leave a rating out of 5 stars
+                        </Col>
+                        <Col sm={10}>
+                        <FormControl onChange={this.handleUpdate} value={this.state.review.rating} componentClass="select">
+                            <option>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                            <option>4</option>
+                            <option>5</option>
+                        </FormControl>
+                        <Button onClick={this.postRev}> Submit Review </Button>
                         </Col>
                     </FormGroup>
                 </Form>

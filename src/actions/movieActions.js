@@ -75,3 +75,31 @@ export function fetchMovie(movieId){
             .catch( (e) => console.log(e) );
     }
 }
+
+export function postReview(reviewObj){
+    const env = runtimeEnv();
+    return dispatch => {
+        return fetch(`${env.REACT_APP_API_URL}/review/`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': localStorage.getItem('token')
+            },
+            body: JSON.stringify(reviewObj),
+            mode: 'cors'})
+            .then( (response) => {
+                console.log(response);
+                if (!response.ok) {
+                    throw Error(response.statusText);
+                }
+                var ahHA = response.json();
+                console.log(ahHA);
+                return ahHA;
+            })
+            // .then( (res) => {
+            //     dispatch(movieFetched(res));
+            // })
+            .catch( (e) => console.log(e) );
+    }
+}
